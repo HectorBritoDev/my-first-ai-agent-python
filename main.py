@@ -1,6 +1,4 @@
-def main():
-    print("Hello from my-first-ai-agent!")
+import os
+from dotenv import load_dotenv
 
-
-if __name__ == "__main__":
-    main()
+load_dotenv('GEMINI_API_KEY')
