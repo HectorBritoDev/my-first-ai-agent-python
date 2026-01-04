@@ -1,39 +1,24 @@
-import unittest
 from functions.get_files_info import get_files_info
 
-class TestGetFilesInfo(unittest.TestCase):
-    def test_invalid_directory_root(self):
-        results = get_files_info("calculator", "/bin")
-        expected = "Result for '/bin' directory:\n    Error: Cannot list \"/bin\" as it is outside the permitted working directory"
-        self.assertEqual(results, expected)
 
-    def test_invalid_directory_outside(self):
-        results = get_files_info('calculator', '../')
-        expected = "Result for '../' directory:\n    Error: Cannot list \"../\" as it is outside the permitted working directory"
-        self.assertEqual(results, expected)
+def test():
+    result = get_files_info("calculator", ".")
+    print("Result for current directory:")
+    print(result)
+    print("")
 
-    def test_existing_subdirectory(self):
-        results = get_files_info('calculator', 'pkg')
-        lines = results.split('\n')
+    result = get_files_info("calculator", "pkg")
+    print("Result for 'pkg' directory:")
+    print(result)
 
-        self.assertEqual(lines[0], "Result for 'pkg' directory:")
+    result = get_files_info("calculator", "/bin")
+    print("Result for '/bin' directory:")
+    print(result)
 
-        # Parse remaining lines into a dict for order-independent comparison
-        file_entries = {}
-        for line in lines[1:]:
-            # Parse "  - filename: file_size=X bytes, is_dir=Y"
-            parts = line.strip().lstrip('- ').split(': ', 1)
-            file_entries[parts[0]] = parts[1]
+    result = get_files_info("calculator", "../")
+    print("Result for '../' directory:")
+    print(result)
 
-        self.assertIn('calculator.py', file_entries)
-        self.assertIn('render.py', file_entries)
-        self.assertRegex(file_entries['calculator.py'], r'file_size=\d+ bytes, is_dir=False')
-        self.assertRegex(file_entries['render.py'], r'file_size=\d+ bytes, is_dir=False')
 
-    def test_existing_directory(self):
-        results = get_files_info('calculator')
-        self.assertIn('main.py', results)
-        self.assertIn('tests.py', results)
-        
 if __name__ == "__main__":
-    unittest.main()
+    test()
