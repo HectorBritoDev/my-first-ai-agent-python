@@ -35,7 +35,11 @@ def get_files_info(working_directory, directory="."):
         for file in files:
             result_lines.append(f"  - {file.name}: file_size={file.stat().st_size} bytes, is_dir={file.is_dir()}")
 
-        return "\n".join(result_lines)
+
+        result = "\n".join(result_lines)
+        print(result)
+
+        return result
 
     except Exception as e:
         return f'Error: {str(e)}'
