@@ -23,7 +23,12 @@ def get_files_info(working_directory, directory="."):
         # print('Is valid or not', valid_target_dir, 'tested values', f"target {target_dir} working {working_dir_abs}")
         if valid_target_dir is False:
             return f'Error: Cannot list "{directory}" as it is outside the permitted working directory' 
-    
+
+        files = os.scandir(target_dir)
+        
+        for file in files:
+            print(f"- {file.name}: file_size={file.stat().st_size} bytes, is_dir={file.is_dir()}")
+            
     except Exception as e:
         return f'Error: {str(e)}'   
     
