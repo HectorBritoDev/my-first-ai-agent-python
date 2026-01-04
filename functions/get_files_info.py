@@ -20,16 +20,25 @@ def get_files_info(working_directory, directory="."):
             [working_dir_abs, target_dir]
         ) == working_dir_abs
 
-        # print('Is valid or not', valid_target_dir, 'tested values', f"target {target_dir} working {working_dir_abs}")
         if valid_target_dir is False:
             return f'Error: Cannot list "{directory}" as it is outside the permitted working directory' 
-
-        files = os.scandir(target_dir)
-        
-        for file in files:
-            print(f"- {file.name}: file_size={file.stat().st_size} bytes, is_dir={file.is_dir()}")
-            
-    except Exception as e:
-        return f'Error: {str(e)}'   
     
-    return 'success'
+        files = os.scandir(target_dir)
+
+
+        top_message = (
+            f"Result for current directory:" 
+            if directory == '.' 
+            else f"Result for '{directory}' directory:"
+        )
+        result_lines = [top_message ]
+        for file in files:
+            result_lines.append(f"  - {file.name}: file_size={file.stat().st_size} bytes, is_dir={file.is_dir()}")
+
+        return "\n".join(result_lines)
+
+    except Exception as e:
+        return f'Error: {str(e)}'
+
+
+print(get_files_info('calculator', 'pkg'))
