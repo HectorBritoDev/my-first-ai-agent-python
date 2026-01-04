@@ -10,5 +10,10 @@ class TestGetFilesInfo(unittest.TestCase):
         results = get_files_info('calculator', '../')
         self.assertEqual(results, 'Error: Cannot list "../" as it is outside the permitted working directory')
 
+    def test_existing_directory(self):
+        results = get_files_info('calculator', 'pkg')
+        self.assertEqual(results, 'success')
+        
+        
 if __name__ == "__main__":
     unittest.main()
