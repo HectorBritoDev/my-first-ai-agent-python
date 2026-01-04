@@ -12,8 +12,16 @@ def get_files_info(working_directory, directory="."):
 
         target_dir_exists = Path(os.path.abspath(target_dir)).exists()
         
+        top_message = (
+            f"Result for current directory:"
+            if directory == '.'
+            else f"Result for '{directory}' directory:"
+        )
+
         if target_dir_exists is False:
-            return f'Error: "{target_dir}" is not a directory'
+            error_message = f'{top_message}\n    Error: Directory "{directory}" does not exist.'
+            print(error_message)
+            return error_message
 
 
         valid_target_dir = os.path.commonpath(
@@ -21,17 +29,12 @@ def get_files_info(working_directory, directory="."):
         ) == working_dir_abs
 
         if valid_target_dir is False:
-            return f'Error: Cannot list "{directory}" as it is outside the permitted working directory' 
-    
+            error_message = f'{top_message}\n    Error: Cannot list "{directory}" as it is outside the permitted working directory'
+            print(error_message)
+            return error_message
+
         files = os.scandir(target_dir)
-
-
-        top_message = (
-            f"Result for current directory:" 
-            if directory == '.' 
-            else f"Result for '{directory}' directory:"
-        )
-        result_lines = [top_message ]
+        result_lines = [top_message]
         for file in files:
             result_lines.append(f"  - {file.name}: file_size={file.stat().st_size} bytes, is_dir={file.is_dir()}")
 
