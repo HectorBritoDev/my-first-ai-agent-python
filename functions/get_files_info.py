@@ -39,6 +39,3 @@ def get_files_info(working_directory, directory="."):
 
     except Exception as e:
         return f'Error: {str(e)}'
-
-
-print(get_files_info('calculator', 'pkg'))
