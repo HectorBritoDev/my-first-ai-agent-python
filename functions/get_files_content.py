@@ -1,7 +1,7 @@
 import os
 from config import MAX_CHARS
 
-def get_files_content(working_directory, file_path):
+def get_file_content(working_directory, file_path):
     try:
         abs_working_dir = os.path.abspath(working_directory)
         target_file_path = os.path.normpath(os.path.join(abs_working_dir, file_path))
@@ -13,6 +13,7 @@ def get_files_content(working_directory, file_path):
         with open(target_file_path) as f:
             file_content_string = f.read(MAX_CHARS)
         
+        return file_content_string
     except Exception as e:
         return f"Error getting file content: {e}"
     
