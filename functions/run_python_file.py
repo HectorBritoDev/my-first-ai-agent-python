@@ -25,7 +25,6 @@ def run_python_file(working_directory, file_path, args=None):
             capture_output=True,
             text=True,
             timeout=3000,
-            working_directory=abs_working_dir
         )
 
         result = []
