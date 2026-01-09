@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from prompt import system_prompt
+from functions.get_files_info import schema_get_files_info
 
 def main():
     parser = argparse.ArgumentParser(description="AI Code Assistant")
