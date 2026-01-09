@@ -4,8 +4,10 @@ import os
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from prompt import system_prompt
+
 from call_function import available_functions
+from prompts import system_prompt
+
 
 def main():
     parser = argparse.ArgumentParser(description="AI Code Assistant")
@@ -25,14 +27,13 @@ def main():
 
     generate_content(client, messages, args.verbose)
 
+
 def generate_content(client, messages, verbose):
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=messages,
-        config = types.GenerateContentConfig(
-            tools=[available_functions],
-            system_instruction=system_prompt,
-            temperature=0
+        config=types.GenerateContentConfig(
+            tools=[available_functions], system_instruction=system_prompt
         ),
     )
     if not response.usage_metadata:
@@ -41,16 +42,15 @@ def generate_content(client, messages, verbose):
     if verbose:
         print("Prompt tokens:", response.usage_metadata.prompt_token_count)
         print("Response tokens:", response.usage_metadata.candidates_token_count)
-    
-    function_calls = response.function_calls
-    if ( function_calls != None):
-        for call in function_calls:
-            print(f"Calling function: {call.name}({call.args})")
-    else:
+
+    if not response.function_calls:
         print("Response:")
         print(response.text)
+        return
 
-    
+    for function_call in response.function_calls:
+        print(f"Calling function: {function_call.name}({function_call.args})")
+
 
 if __name__ == "__main__":
     main()
