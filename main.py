@@ -41,9 +41,16 @@ def generate_content(client, messages, verbose):
     if verbose:
         print("Prompt tokens:", response.usage_metadata.prompt_token_count)
         print("Response tokens:", response.usage_metadata.candidates_token_count)
-    print("Response:")
-    print(response.text)
+    
+    function_calls = response.function_calls
+    if ( function_calls != None):
+        for call in function_calls:
+            print(f"Calling function: {call.name}({call.args})")
+    else:
+        print("Response:")
+        print(response.text)
 
+    
 
 if __name__ == "__main__":
     main()
