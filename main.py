@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from prompt import system_prompt
-from functions.get_files_info import schema_get_files_info
+from call_function import available_functions
 
 def main():
     parser = argparse.ArgumentParser(description="AI Code Assistant")
@@ -30,6 +30,7 @@ def generate_content(client, messages, verbose):
         model="gemini-2.5-flash",
         contents=messages,
         config = types.GenerateContentConfig(
+            tools=[available_functions],
             system_instruction=system_prompt,
             temperature=0
         ),
