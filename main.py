@@ -6,6 +6,7 @@ from google import genai
 from google.genai import types
 
 from call_function import available_functions
+from functions.call_function import call_function
 from prompts import system_prompt
 
 
@@ -48,8 +49,24 @@ def generate_content(client, messages, verbose):
         print(response.text)
         return
 
+    function_results = []
+
     for function_call in response.function_calls:
-        print(f"Calling function: {function_call.name}({function_call.args})")
+        function_call_result: types.FunctionResponse | None = call_function(function_call)
+        
+        if (function_call_result.parts) == 0:
+            raise Exception('.parts is empty')
+        
+        if function_call_result.parts[0].function_response is None:
+            raise Exception('.function_response is None')
+
+        if function_call_result.parts[0].function_response.response is None:
+            raise Exception('.response is None')
+        
+        function_results.append(function_call_result.parts[0])
+
+        if verbose is True:
+            print(f"-> {function_call_result.parts[0].function_response.response}")
 
 
 if __name__ == "__main__":
