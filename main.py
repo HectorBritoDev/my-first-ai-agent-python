@@ -1,11 +1,13 @@
 import argparse
 import os
+import sys
 
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
 from call_function import available_functions, call_function
+from config import MAX_ITERS
 from prompts import system_prompt
 
 
@@ -25,49 +27,45 @@ def main():
     if args.verbose:
         print(f"User prompt: {args.user_prompt}\n")
 
+    for _ in range(MAX_ITERS):
+        try:
+            final_response = generate_content(client, messages, args.verbose)
+            if final_response:
+                print("Final response:")
+                print(final_response)
+                return
+        except Exception as e:
+            print(f"Error in generate_content: {e}")
 
-    for _ in range(20):
-        response = generate_content(client, messages, args.verbose)
-
-        if response is None:
-            print('execution completed')
-            exit()
-
-        model_respose = response['model_response']
-
-        
-        if len(model_respose.candidates) > 0:
-            for candidate in model_respose.candidates:
-                messages.append(
-                     candidate.content
-                )
-        
-        messages.append(types.Content(role="user", parts=response['function_responses']))
-
+    print(f"Maximum iterations ({MAX_ITERS}) reached")
+    sys.exit(1)
 
 
 def generate_content(client, messages, verbose):
-    model_response = client.models.generate_content(
+    response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=messages,
         config=types.GenerateContentConfig(
             tools=[available_functions], system_instruction=system_prompt
         ),
     )
-    if not model_response.usage_metadata:
+    if not response.usage_metadata:
         raise RuntimeError("Gemini API response appears to be malformed")
 
     if verbose:
-        print("Prompt tokens:", model_response.usage_metadata.prompt_token_count)
-        print("Response tokens:", model_response.usage_metadata.candidates_token_count)
+        print("Prompt tokens:", response.usage_metadata.prompt_token_count)
+        print("Response tokens:", response.usage_metadata.candidates_token_count)
 
-    if not model_response.function_calls:
-        print("Response:")
-        print(model_response.text)
-        return
+    if response.candidates:
+        for candidate in response.candidates:
+            if candidate.content:
+                messages.append(candidate.content)
+
+    if not response.function_calls:
+        return response.text
 
     function_responses = []
-    for function_call in model_response.function_calls:
+    for function_call in response.function_calls:
         result = call_function(function_call, verbose)
         if (
             not result.parts
@@ -79,7 +77,8 @@ def generate_content(client, messages, verbose):
             print(f"-> {result.parts[0].function_response.response}")
         function_responses.append(result.parts[0])
 
-    return {"model_response": model_response, "function_responses": function_responses}
+    messages.append(types.Content(role="user", parts=function_responses))
+
 
 if __name__ == "__main__":
     main()
